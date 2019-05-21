@@ -33,15 +33,34 @@ public class StringCalculatorTest {
     }
 
     @Test
-    public void add_argumentHasTwoNumbers_returnSum () {
+    public void add_argumentHasTwoNumbers_returnSum() {
         var expected = 3;
         assertEquals("Should return " + expected, expected, stringCalculator.add("1,2"));
     }
 
     @Test
-    public void add_argumentHasTwoNumbers_numberOrderDoesNotMatter () {
+    public void add_argumentHasTwoNumbers_numberOrderDoesNotMatter() {
         var expected = 5;
         assertEquals("Should return " + expected, expected, stringCalculator.add("2,3"));
         assertEquals("Should return " + expected, expected, stringCalculator.add("3,2"));
+    }
+
+    @Test
+    public void add_argumentHasMoreNumbers_returnSum() {
+        var expected = 31;
+        assertEquals("Should return " + expected, expected, stringCalculator.add("2,3,7,6,4,9"));
+    }
+
+    @Test
+    public void add_argumentContainsBiggerNumbers_returnSum() {
+        var expected = 178;
+        assertEquals("Should return " + expected, expected, stringCalculator.add("12,30,72,64"));
+    }
+
+    @Test
+    public void add_argumentContainsDoubledDelimiter_omitDoubledDelimiters() {
+        var expected = 178;
+        assertEquals("Should return " + expected, expected, stringCalculator.add("12,30,,,,72,64"));
+        assertEquals("Should return " + expected, expected, stringCalculator.add("12,,,30,,72,,,64,,"));
     }
 }

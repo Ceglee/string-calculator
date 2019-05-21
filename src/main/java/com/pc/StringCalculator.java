@@ -6,10 +6,10 @@ public class StringCalculator {
         var sum = 0;
         if (numbers != null && !numbers.isEmpty()) {
             var partialNumbers = numbers.split(",");
-            if (partialNumbers.length == 2) {
-                sum = Integer.parseInt(partialNumbers[0]) + Integer.parseInt(partialNumbers[1]);
-            } else {
-                sum = Integer.parseInt(partialNumbers[0]);
+            for (var partialNumber : partialNumbers) {
+                if (!partialNumber.isEmpty()) {
+                    sum += Integer.parseInt(partialNumber);
+                }
             }
         }
         return sum;
