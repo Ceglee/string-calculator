@@ -63,4 +63,16 @@ public class StringCalculatorTest {
         assertEquals("Should return " + expected, expected, stringCalculator.add("12,30,,,,72,64"));
         assertEquals("Should return " + expected, expected, stringCalculator.add("12,,,30,,72,,,64,,"));
     }
+
+    @Test
+    public void add_argumentContainsNewLineDelimiter_returnSum() {
+        var expected = 5;
+        assertEquals("Should return " + expected, expected, stringCalculator.add("2\n3"));
+    }
+
+    @Test
+    public void add_argumentContainsMixedDelimiters_returnSum() {
+        var expected = 12;
+        assertEquals("Should return " + expected, expected, stringCalculator.add("2\n3,2\n3,2"));
+    }
 }
