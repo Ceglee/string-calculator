@@ -37,6 +37,13 @@ public class StringCalculatorTest {
         assertEquals("Should return " + expected, expected, stringCalculator.add("1"));
     }
 
+
+    @Test
+    public void add_argumentIsSingleNumberWithLeadingZeros_returnThisNumber() {
+        var expected = 1;
+        assertEquals("Should return " + expected, expected, stringCalculator.add("00001"));
+    }
+
     @Test
     public void add_argumentIsSingleDelimiter_returnZero() {
         var expected = 0;
