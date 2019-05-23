@@ -99,8 +99,8 @@ public class StringCalculator {
         }
 
         private void handleDelimiter() {
-            jump();
             visited = VisitedElement.DELIMITER;
+            jump();
             buildNumber();
         }
 
@@ -156,7 +156,10 @@ public class StringCalculator {
             if (visited == VisitedElement.HEADER) {
                 return false;
             } else if (elements[pointer] == NUMERIC_SPECIAL && visited != VisitedElement.NUMBER) {
-                return true;
+                pointer++;
+                var result = exists() && isNumber();
+                pointer--;
+                return result;
             }
 
             for (var number : NUMERIC_CHARS) {

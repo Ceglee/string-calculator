@@ -134,7 +134,7 @@ public class StringCalculatorTest {
     }
 
     @Test(expected = ParseException.class)
-    public void add_argumentContainsOnlyEmptyDelimiterDefinitionInHeaderSection_throwExceptionWhenEncountersDelimiter() {
+    public void add_argumentContainsOnlyEmptyDelimiterDefinitionInHeaderSection_throwExceptionWhenEncounterDelimiter() {
         var expected = 123;
         assertEquals("Should return " + expected, expected, stringCalculator.add("//[]\n123"));
         try {
@@ -331,6 +331,42 @@ public class StringCalculatorTest {
     public void add_argumentContainsMinusAsDelimiter_returnProperSum() {
         var expected = 322;
         assertEquals("Should return " + expected, expected, stringCalculator.add("//[-][,]\n2,43-56-94,12-14,11-90"));
+    }
+
+
+    @Test(expected = NegativeNumberException.class)
+    public void add_argumentContainsMinusAsDelimiterAndNegativeNumbers_throwException() {
+        List<Integer> invalidNumbers = new ArrayList<>();
+        invalidNumbers.add(-14);
+        invalidNumbers.add(-90);
+        try {
+            stringCalculator.add("//[-][,]\n2,43-56-94,12--14,11,-90");
+        } catch (NegativeNumberException e) {
+            assertEquals(invalidNumbers, e.getInvalidNumbers());
+            throw e;
+        }
+    }
+
+    @Test(expected = ParseException.class)
+    public void add_argumentContainsOnlyMinusAsANumber_throwException() {
+        try {
+            stringCalculator.add("-");
+        } catch (ParseException e) {
+            assertEquals('-', e.getInvalidCharacter());
+            assertEquals(1, e.getPoint());
+            throw e;
+        }
+    }
+
+    @Test(expected = ParseException.class)
+    public void add_argumentContainsMinusAsANumber_throwException() {
+        try {
+            stringCalculator.add("-123,-,123");
+        } catch (ParseException e) {
+            assertEquals('-', e.getInvalidCharacter());
+            assertEquals(6, e.getPoint());
+            throw e;
+        }
     }
 
     @Test
