@@ -22,7 +22,7 @@ public class StringCalculatorTest {
     @Test
     public void add_argumentIsNull_returnZero() {
         var expected = 0;
-        assertEquals("Should return " + expected, expected, stringCalculator.add(""));
+        assertEquals("Should return " + expected, expected, stringCalculator.add(null));
     }
 
     @Test

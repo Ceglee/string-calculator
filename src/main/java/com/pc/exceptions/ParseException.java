@@ -2,8 +2,8 @@ package com.pc.exceptions;
 
 public class ParseException extends IllegalArgumentException {
 
-    private char invalidCharacter;
-    private int point;
+    private final char invalidCharacter;
+    private final int point;
 
     public ParseException(String s, char invalidCharacter, int point) {
         super(s);
