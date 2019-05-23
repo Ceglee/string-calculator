@@ -10,22 +10,24 @@ import java.util.stream.Collectors;
 public class StringCalculator {
 
     public int add(String numbers) {
-        var sum = 0;
         if (numbers != null && !numbers.isEmpty()) {
             var result = new Parser().parse(numbers);
+
             List<Integer> negativeNumbers = result.stream()
                     .map(Integer::parseInt)
                     .filter(number -> number < 0)
                     .collect(Collectors.toList());
+
             if (negativeNumbers.size() != 0) {
                 throw new NegativeNumberException(negativeNumbers);
             }
+
             return result.stream()
                     .mapToInt(Integer::parseInt)
                     .filter(val -> val <= 1000)
                     .sum();
         }
-        return sum;
+        return 0;
     }
 
     private class Parser {
@@ -37,6 +39,7 @@ public class StringCalculator {
         private static final char NUMERIC_SPECIAL = '-';
 
         private final char[] NUMERIC_CHARS = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9'};
+        private final List<char[]> DEFAULT_DELIMITERS = List.of(new char[]{COMMA_DELIMITER}, new char[]{NEW_LINE_DELIMITER});
 
         private String sentence;
         private char[] elements;
@@ -44,24 +47,18 @@ public class StringCalculator {
         private List<char[]> delimiters;
         private VisitedElement visited;
 
-        private Parser() {
-            delimiters = new LinkedList<>();
-            delimiters.add(new char[]{COMMA_DELIMITER});
-            delimiters.add(new char[]{NEW_LINE_DELIMITER});
-        }
-
         public List<String> parse(String sentence) {
-            this.sentence = sentence;
-            elements = sentence.toCharArray();
+            reset(sentence);
+
             List<String> result = new LinkedList<>();
-            var builder = new StringBuilder();
-            visited = VisitedElement.HEADER;
+            var numberBuilder = new StringBuilder();
+
             while (exists()) {
                 if (isDelimiter()) {
                     visited = VisitedElement.DELIMITER;
-                    if (builder.length() != 0) {
-                        result.add(builder.toString());
-                        builder.setLength(0);
+                    if (numberBuilder.length() != 0) {
+                        result.add(numberBuilder.toString());
+                        numberBuilder.setLength(0);
                     }
                 } else if (isHeaderSection()) {
                     delimiters = new LinkedList<>();
@@ -70,17 +67,25 @@ public class StringCalculator {
                     pointer--;
                 } else if (isNumber()) {
                     visited = VisitedElement.NUMBER;
-                    builder.append(elements[pointer]);
+                    numberBuilder.append(elements[pointer]);
                 } else {
                     throw buildException();
                 }
                 pointer++;
             }
-            if (builder.length() != 0) {
-                result.add(builder.toString());
-                builder.setLength(0);
+            if (numberBuilder.length() != 0) {
+                result.add(numberBuilder.toString());
+                numberBuilder.setLength(0);
             }
             return result;
+        }
+
+        private void reset(String sentence) {
+            this.sentence = sentence;
+            elements = sentence.toCharArray();
+            pointer = 0;
+            delimiters = DEFAULT_DELIMITERS;
+            visited = VisitedElement.HEADER;
         }
 
         private boolean isDelimiter() {
