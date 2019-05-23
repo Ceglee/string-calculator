@@ -46,28 +46,22 @@ public class StringCalculator {
         private int pointer = 0;
         private List<char[]> delimiters;
         private VisitedElement visited;
+        private List<String> result;
+        private StringBuilder numberBuilder;
 
         public List<String> parse(String sentence) {
             reset(sentence);
 
-            List<String> result = new LinkedList<>();
-            var numberBuilder = new StringBuilder();
-
             while (exists()) {
                 if (isDelimiter()) {
-                    visited = VisitedElement.DELIMITER;
-                    if (numberBuilder.length() != 0) {
-                        result.add(numberBuilder.toString());
-                        numberBuilder.setLength(0);
-                    }
+                    handleDelimiter();
                 } else if (isHeaderSection()) {
                     delimiters = new LinkedList<>();
                     delimiters.add(new char[]{NEW_LINE_DELIMITER});
                     handleHeaderSection();
                     pointer--;
                 } else if (isNumber()) {
-                    visited = VisitedElement.NUMBER;
-                    numberBuilder.append(elements[pointer]);
+                    handleNumber();
                 } else {
                     throw buildException();
                 }
@@ -86,6 +80,8 @@ public class StringCalculator {
             pointer = 0;
             delimiters = DEFAULT_DELIMITERS;
             visited = VisitedElement.HEADER;
+            result = new LinkedList<>();
+            numberBuilder = new StringBuilder();
         }
 
         private boolean isDelimiter() {
@@ -150,6 +146,19 @@ public class StringCalculator {
                 builder.append(elements[pointer++]);
             }
             throw buildException();
+        }
+
+        private void handleDelimiter() {
+            visited = VisitedElement.DELIMITER;
+            if (numberBuilder.length() != 0) {
+                result.add(numberBuilder.toString());
+                numberBuilder.setLength(0);
+            }
+        }
+
+        private void handleNumber() {
+            visited = VisitedElement.NUMBER;
+            numberBuilder.append(elements[pointer]);
         }
 
         private boolean exists() {
