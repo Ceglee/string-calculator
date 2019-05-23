@@ -41,7 +41,6 @@ public class StringCalculator {
         private final char[] NUMERIC_CHARS = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9'};
         private final List<char[]> DEFAULT_DELIMITERS = List.of(new char[]{COMMA_DELIMITER}, new char[]{NEW_LINE_DELIMITER});
 
-        private String sentence;
         private char[] elements;
         private int pointer = 0;
         private int jumps = 0;
@@ -69,7 +68,6 @@ public class StringCalculator {
         }
 
         private void reset(String sentence) {
-            this.sentence = sentence;
             elements = sentence.toCharArray();
             pointer = 0;
             delimiters = DEFAULT_DELIMITERS;
@@ -170,7 +168,7 @@ public class StringCalculator {
         private ParseException buildException() {
             var invalidCharacter = exists() ? elements[pointer] : elements[pointer - 1];
             var pointer = exists() ? this.pointer + 1: this.pointer;
-            var message = String.format("Invalid character %s at point %s in sentence: %s", invalidCharacter, pointer, sentence);
+            var message = String.format("Invalid character %s at point %s in sentence: %s", invalidCharacter, pointer, new String(elements));
             return new ParseException(message, invalidCharacter, pointer);
         }
 
