@@ -44,6 +44,7 @@ public class StringCalculator {
         private String sentence;
         private char[] elements;
         private int pointer = 0;
+        private int jumps = 0;
         private List<char[]> delimiters;
         private VisitedElement visited;
         private List<String> result;
@@ -51,7 +52,6 @@ public class StringCalculator {
 
         public List<String> parse(String sentence) {
             reset(sentence);
-
             while (exists()) {
                 if (isDelimiter()) {
                     handleDelimiter();
@@ -67,10 +67,7 @@ public class StringCalculator {
                 }
                 pointer++;
             }
-            if (numberBuilder.length() != 0) {
-                result.add(numberBuilder.toString());
-                numberBuilder.setLength(0);
-            }
+            buildNumber();
             return result;
         }
 
@@ -91,7 +88,7 @@ public class StringCalculator {
                         break;
                     }
                     if (i + 1 == delimiter.length) {
-                        pointer += i;
+                        jumps = i;
                         return visited != VisitedElement.DELIMITER;
                     }
                 }
@@ -149,11 +146,10 @@ public class StringCalculator {
         }
 
         private void handleDelimiter() {
+            pointer += jumps;
+            jumps = 0;
             visited = VisitedElement.DELIMITER;
-            if (numberBuilder.length() != 0) {
-                result.add(numberBuilder.toString());
-                numberBuilder.setLength(0);
-            }
+            buildNumber();
         }
 
         private void handleNumber() {
@@ -170,6 +166,13 @@ public class StringCalculator {
             var pointer = exists() ? this.pointer + 1: this.pointer;
             var message = String.format("Invalid character %s at point %s in sentence: %s", invalidCharacter, pointer, sentence);
             return new ParseException(message, invalidCharacter, pointer);
+        }
+
+        private void buildNumber() {
+            if (numberBuilder.length() != 0) {
+                result.add(numberBuilder.toString());
+                numberBuilder.setLength(0);
+            }
         }
     }
 
