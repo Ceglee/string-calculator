@@ -237,6 +237,18 @@ public class StringCalculatorTest {
         }
     }
 
+
+    @Test(expected = ParseException.class)
+    public void add_argumentContainsOnlyHeaderSectionWithoutNewLine_throwException() {
+        try {
+            stringCalculator.add("//[;][,]");
+        } catch (ParseException e) {
+            assertEquals(']', e.getInvalidCharacter());
+            assertEquals(8, e.getPoint());
+            throw e;
+        }
+    }
+
     @Test
     public void add_argumentContainsDelimiterDefinitionWithHeaderSectionStart_returnProperSum() {
         var expected = 246;

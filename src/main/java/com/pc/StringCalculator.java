@@ -56,10 +56,7 @@ public class StringCalculator {
                 if (isDelimiter()) {
                     handleDelimiter();
                 } else if (isHeaderSection()) {
-                    delimiters = new LinkedList<>();
-                    delimiters.add(new char[]{NEW_LINE_DELIMITER});
                     handleHeaderSection();
-                    pointer--;
                 } else if (isNumber()) {
                     handleNumber();
                 } else {
@@ -112,7 +109,7 @@ public class StringCalculator {
         private boolean isHeaderSection() {
             if (visited == VisitedElement.HEADER && elements[pointer] == START_HEADER_SECTION && elements.length > 2) {
                 if (elements[pointer + 1] == START_HEADER_SECTION) {
-                    pointer += 2;
+                    jumps = 2;
                     return true;
                 }
                 throw buildException();
@@ -121,23 +118,33 @@ public class StringCalculator {
         }
 
         private void handleHeaderSection() {
+            delimiters = new LinkedList<>();
+            delimiters.add(new char[]{NEW_LINE_DELIMITER});
+            jump();
             if (elements[pointer] == NEW_LINE_DELIMITER) {
                 return;
             } else if (elements[pointer] == START_DELIMITER_DEFINITION) {
-                pointer++;
                 handleDelimiterDefinition();
-                handleHeaderSection();
             } else {
                 throw buildException();
             }
+
+            if (!exists() || elements[pointer] != NEW_LINE_DELIMITER) {
+                throw buildException();
+            }
+            pointer--;
         }
 
         private void handleDelimiterDefinition() {
+            pointer++;
             var builder = new StringBuilder();
             while (exists()) {
                 if (elements[pointer] == END_DELIMITER_DEFINITION) {
                     delimiters.add(builder.toString().toCharArray());
                     pointer++;
+                    if (exists() && elements[pointer] == START_DELIMITER_DEFINITION) {
+                        handleDelimiterDefinition();
+                    }
                     return;
                 }
                 builder.append(elements[pointer++]);
@@ -146,8 +153,7 @@ public class StringCalculator {
         }
 
         private void handleDelimiter() {
-            pointer += jumps;
-            jumps = 0;
+            jump();
             visited = VisitedElement.DELIMITER;
             buildNumber();
         }
@@ -173,6 +179,11 @@ public class StringCalculator {
                 result.add(numberBuilder.toString());
                 numberBuilder.setLength(0);
             }
+        }
+
+        private void jump() {
+            pointer += jumps;
+            jumps = 0;
         }
     }
 
