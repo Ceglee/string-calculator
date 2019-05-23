@@ -83,6 +83,7 @@ public class StringCalculator {
             if (visited == VisitedElement.DELIMITER) {
                 return false;
             }
+
             for (var delimiter : delimiters) {
                 for (var i = 0; i < delimiter.length; i++) {
                     if (pointer + i == elements.length || elements[pointer + i] != delimiter[i]) {
@@ -97,19 +98,10 @@ public class StringCalculator {
             return false;
         }
 
-        private boolean isNumber() {
-            if (visited == VisitedElement.HEADER) {
-                return false;
-            } else if (elements[pointer] == NUMERIC_SPECIAL && visited != VisitedElement.NUMBER) {
-                return true;
-            }
-
-            for (var number : NUMERIC_CHARS) {
-                if (elements[pointer] == number) {
-                    return true;
-                }
-            }
-            return false;
+        private void handleDelimiter() {
+            jump();
+            visited = VisitedElement.DELIMITER;
+            buildNumber();
         }
 
         private boolean isHeaderSection() {
@@ -128,6 +120,7 @@ public class StringCalculator {
             delimiters = new LinkedList<>();
             delimiters.add(new char[]{NEW_LINE_DELIMITER});
             jump();
+
             if (elements[pointer] == NEW_LINE_DELIMITER) {
                 return;
             } else if (elements[pointer] == START_DELIMITER_DEFINITION) {
@@ -144,6 +137,7 @@ public class StringCalculator {
         private void handleDelimiterDefinition() {
             pointer++;
             var builder = new StringBuilder();
+
             while (exists()) {
                 if (elements[pointer] == END_DELIMITER_DEFINITION) {
                     delimiters.add(builder.toString().toCharArray());
@@ -158,10 +152,19 @@ public class StringCalculator {
             throw buildException();
         }
 
-        private void handleDelimiter() {
-            jump();
-            visited = VisitedElement.DELIMITER;
-            buildNumber();
+        private boolean isNumber() {
+            if (visited == VisitedElement.HEADER) {
+                return false;
+            } else if (elements[pointer] == NUMERIC_SPECIAL && visited != VisitedElement.NUMBER) {
+                return true;
+            }
+
+            for (var number : NUMERIC_CHARS) {
+                if (elements[pointer] == number) {
+                    return true;
+                }
+            }
+            return false;
         }
 
         private void handleNumber() {
@@ -173,11 +176,9 @@ public class StringCalculator {
             return this.pointer < elements.length;
         }
 
-        private ParseException buildException() {
-            var invalidCharacter = exists() ? elements[pointer] : elements[pointer - 1];
-            var pointer = exists() ? this.pointer + 1: this.pointer;
-            var message = String.format("Invalid character %s at point %s in sentence: %s", invalidCharacter, pointer, new String(elements));
-            return new ParseException(message, invalidCharacter, pointer);
+        private void jump() {
+            pointer += jumps;
+            jumps = 0;
         }
 
         private void buildNumber() {
@@ -187,9 +188,11 @@ public class StringCalculator {
             }
         }
 
-        private void jump() {
-            pointer += jumps;
-            jumps = 0;
+        private ParseException buildException() {
+            var invalidCharacter = exists() ? elements[pointer] : elements[pointer - 1];
+            var pointer = exists() ? this.pointer + 1: this.pointer;
+            var message = String.format("Invalid character %s at point %s in sentence: %s", invalidCharacter, pointer, new String(elements));
+            return new ParseException(message, invalidCharacter, pointer);
         }
     }
 
