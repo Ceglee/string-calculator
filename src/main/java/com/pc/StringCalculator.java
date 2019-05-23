@@ -52,15 +52,18 @@ public class StringCalculator {
         public List<String> parse(String sentence) {
             reset(sentence);
             while (exists()) {
+
                 if (isDelimiter()) {
                     handleDelimiter();
                 } else if (isHeaderSection()) {
                     handleHeaderSection();
+                    continue;
                 } else if (isNumber()) {
                     handleNumber();
                 } else {
                     throw buildException();
                 }
+
                 pointer++;
             }
             buildNumber();
@@ -71,12 +74,15 @@ public class StringCalculator {
             elements = sentence.toCharArray();
             pointer = 0;
             delimiters = DEFAULT_DELIMITERS;
-            visited = VisitedElement.HEADER;
+            visited = VisitedElement.NONE;
             result = new LinkedList<>();
             numberBuilder = new StringBuilder();
         }
 
         private boolean isDelimiter() {
+            if (visited == VisitedElement.DELIMITER) {
+                return false;
+            }
             for (var delimiter : delimiters) {
                 for (var i = 0; i < delimiter.length; i++) {
                     if (pointer + i == elements.length || elements[pointer + i] != delimiter[i]) {
@@ -84,7 +90,7 @@ public class StringCalculator {
                     }
                     if (i + 1 == delimiter.length) {
                         jumps = i;
-                        return visited != VisitedElement.DELIMITER;
+                        return true;
                     }
                 }
             }
@@ -92,7 +98,9 @@ public class StringCalculator {
         }
 
         private boolean isNumber() {
-            if (elements[pointer] == NUMERIC_SPECIAL && visited != VisitedElement.NUMBER) {
+            if (visited == VisitedElement.HEADER) {
+                return false;
+            } else if (elements[pointer] == NUMERIC_SPECIAL && visited != VisitedElement.NUMBER) {
                 return true;
             }
 
@@ -105,7 +113,7 @@ public class StringCalculator {
         }
 
         private boolean isHeaderSection() {
-            if (visited == VisitedElement.HEADER && elements[pointer] == START_HEADER_SECTION && elements.length > 2) {
+            if (visited == VisitedElement.NONE && elements[pointer] == START_HEADER_SECTION && elements.length > 2) {
                 if (elements[pointer + 1] == START_HEADER_SECTION) {
                     jumps = 2;
                     return true;
@@ -116,6 +124,7 @@ public class StringCalculator {
         }
 
         private void handleHeaderSection() {
+            visited = VisitedElement.HEADER;
             delimiters = new LinkedList<>();
             delimiters.add(new char[]{NEW_LINE_DELIMITER});
             jump();
@@ -130,7 +139,6 @@ public class StringCalculator {
             if (!exists() || elements[pointer] != NEW_LINE_DELIMITER) {
                 throw buildException();
             }
-            pointer--;
         }
 
         private void handleDelimiterDefinition() {
@@ -186,6 +194,6 @@ public class StringCalculator {
     }
 
     private enum VisitedElement {
-        DELIMITER, NUMBER, HEADER
+        NONE, HEADER, DELIMITER, NUMBER
     }
 }
